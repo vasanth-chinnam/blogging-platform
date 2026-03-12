@@ -1,7 +1,6 @@
 package com.blogplatform.controller;
 
 import com.blogplatform.dto.*;
-import com.blogplatform.model.*;
 import com.blogplatform.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;
-    private final PostRepository postRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryDto>>> getAll() {

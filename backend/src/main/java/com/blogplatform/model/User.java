@@ -63,5 +63,6 @@ public class User {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @Builder.Default
     private boolean enabled = true;
 }

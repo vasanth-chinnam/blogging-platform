@@ -4,6 +4,7 @@ import java.util.Set;
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class AuthResponse {
     public String accessToken;
+    @Builder.Default
     public String tokenType = "Bearer";
     public Long userId;
     public String username;
