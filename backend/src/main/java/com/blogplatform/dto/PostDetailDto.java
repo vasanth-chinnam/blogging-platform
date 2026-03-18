@@ -17,10 +17,15 @@ public class PostDetailDto {
     public int likesCount;
     public int commentsCount;
     public int readTime;
+    public long viewCount;
+    public int reactionsCount;
+    public Map<String, Integer> reactionBreakdown;
+    public boolean bookmarkedByCurrentUser;
     public Post.PostStatus status;
     public LocalDateTime publishedAt;
     public LocalDateTime createdAt;
     public LocalDateTime updatedAt;
     public boolean likedByCurrentUser;
+    public String currentUserReaction;
     public List<CommentDto> comments;
 }

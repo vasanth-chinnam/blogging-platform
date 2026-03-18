@@ -21,7 +21,8 @@ public class CommentService {
     private final UserRepository userRepository;
 
     public List<CommentDto> getCommentsByPost(Long postId) {
-        return commentRepository.findByPostIdOrderByCreatedAtDesc(postId).stream()
+        // return top-level comments with nested replies
+        return commentRepository.findByPostIdAndParentCommentIsNullOrderByCreatedAtDesc(postId).stream()
             .map(this::toDto)
             .collect(Collectors.toList());
     }
@@ -33,13 +34,19 @@ public class CommentService {
         User author = userRepository.findByUsername(username)
             .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
-        Comment comment = Comment.builder()
+        Comment.CommentBuilder builder = Comment.builder()
             .content(request.content)
             .post(post)
-            .author(author)
-            .build();
+            .author(author);
 
-        return toDto(commentRepository.save(comment));
+        // Handle nested comments
+        if (request.parentCommentId != null) {
+            Comment parent = commentRepository.findById(request.parentCommentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", request.parentCommentId));
+            builder.parentComment(parent);
+        }
+
+        return toDto(commentRepository.save(builder.build()));
     }
 
     @Transactional
@@ -68,6 +75,10 @@ public class CommentService {
     }
 
     private CommentDto toDto(Comment comment) {
+        List<CommentDto> replies = comment.getReplies() != null
+            ? comment.getReplies().stream().map(this::toDto).collect(Collectors.toList())
+            : List.of();
+
         return CommentDto.builder()
             .id(comment.getId())
             .content(comment.getContent())
@@ -76,6 +87,8 @@ public class CommentService {
                 .username(comment.getAuthor().getUsername())
                 .avatarUrl(comment.getAuthor().getAvatarUrl())
                 .build())
+            .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
+            .replies(replies)
             .createdAt(comment.getCreatedAt())
             .updatedAt(comment.getUpdatedAt())
             .build();

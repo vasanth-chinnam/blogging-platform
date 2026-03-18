@@ -7,11 +7,15 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -35,12 +39,41 @@ public class PostController {
     @GetMapping("/search")
     @Operation(summary = "Search posts")
     public ResponseEntity<ApiResponse<PagedResponse<PostSummaryDto>>> searchPosts(
-            @RequestParam String q,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String tag,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Authentication auth) {
         String username = auth != null ? auth.getName() : null;
-        return ResponseEntity.ok(ApiResponse.success(postService.searchPosts(q, page, size, username)));
+        if (author != null || tag != null || category != null || from != null || to != null) {
+            return ResponseEntity.ok(ApiResponse.success(
+                postService.advancedSearch(q, author, tag, category, from, to, page, size, username)));
+        }
+        return ResponseEntity.ok(ApiResponse.success(postService.searchPosts(q != null ? q : "", page, size, username)));
+    }
+
+    @GetMapping("/trending")
+    @Operation(summary = "Get trending posts")
+    public ResponseEntity<ApiResponse<PagedResponse<PostSummaryDto>>> getTrending(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication auth) {
+        String username = auth != null ? auth.getName() : null;
+        return ResponseEntity.ok(ApiResponse.success(postService.getTrendingPosts(page, size, username)));
+    }
+
+    @GetMapping("/{id}/recommended")
+    @Operation(summary = "Get recommended posts for a given post")
+    public ResponseEntity<ApiResponse<PagedResponse<PostSummaryDto>>> getRecommended(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "4") int size,
+            Authentication auth) {
+        String username = auth != null ? auth.getName() : null;
+        return ResponseEntity.ok(ApiResponse.success(postService.getRecommendedPosts(id, size, username)));
     }
 
     @GetMapping("/tag/{tagSlug}")
@@ -106,6 +139,17 @@ public class PostController {
             postService.updatePost(id, request, auth.getName())));
     }
 
+    @PutMapping("/{id}/autosave")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ApiResponse<Void>> autoSave(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body,
+            Authentication auth) {
+        postService.autoSave(id, body.get("content"), auth.getName());
+        return ResponseEntity.ok(ApiResponse.success("Auto-saved", null));
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "bearerAuth")
@@ -122,5 +166,23 @@ public class PostController {
     public ResponseEntity<ApiResponse<Boolean>> toggleLike(@PathVariable Long id, Authentication auth) {
         boolean liked = postService.toggleLike(id, auth.getName());
         return ResponseEntity.ok(ApiResponse.success(liked ? "Post liked" : "Post unliked", liked));
+    }
+
+    @PostMapping("/{id}/react")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> toggleReaction(
+            @PathVariable Long id,
+            @RequestBody ReactionRequest request,
+            Authentication auth) {
+        Map<String, Object> result = postService.toggleReaction(id, request.type, auth.getName());
+        return ResponseEntity.ok(ApiResponse.success(result));
+    }
+    @GetMapping("/{id}/versions")
+    @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ApiResponse<java.util.List<PostVersionDto>>> getVersions(
+            @PathVariable Long id, Authentication auth) {
+        return ResponseEntity.ok(ApiResponse.success(postService.getPostVersions(id, auth.getName())));
     }
 }

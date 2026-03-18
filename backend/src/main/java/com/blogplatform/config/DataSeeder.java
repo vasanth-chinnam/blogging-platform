@@ -20,6 +20,9 @@ public class DataSeeder implements CommandLineRunner {
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
+    private final ReactionRepository reactionRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -67,6 +70,14 @@ public class DataSeeder implements CommandLineRunner {
             .roles(Set.of("USER"))
             .enabled(true)
             .build());
+
+        // Follow relationships
+        alice.getFollowing().add(bob);
+        alice.getFollowing().add(admin);
+        bob.getFollowing().add(alice);
+        admin.getFollowing().add(alice);
+        admin.getFollowing().add(bob);
+        userRepository.saveAll(List.of(alice, bob, admin));
 
         // Posts
         Post p1 = Post.builder()
@@ -118,6 +129,7 @@ public class DataSeeder implements CommandLineRunner {
             .status(Post.PostStatus.PUBLISHED)
             .publishedAt(LocalDateTime.now().minusDays(5))
             .readTime(8)
+            .viewCount(342)
             .build();
 
         Post p2 = Post.builder()
@@ -155,6 +167,7 @@ public class DataSeeder implements CommandLineRunner {
             .status(Post.PostStatus.PUBLISHED)
             .publishedAt(LocalDateTime.now().minusDays(2))
             .readTime(6)
+            .viewCount(521)
             .build();
 
         Post p3 = Post.builder()
@@ -188,6 +201,7 @@ public class DataSeeder implements CommandLineRunner {
             .status(Post.PostStatus.PUBLISHED)
             .publishedAt(LocalDateTime.now().minusDays(7))
             .readTime(5)
+            .viewCount(189)
             .build();
 
         Post p4 = Post.builder()
@@ -221,16 +235,41 @@ public class DataSeeder implements CommandLineRunner {
             .status(Post.PostStatus.PUBLISHED)
             .publishedAt(LocalDateTime.now().minusDays(1))
             .readTime(4)
+            .viewCount(734)
             .build();
 
         postRepository.saveAll(List.of(p1, p2, p3, p4));
 
-        // Add some likes
+        // Add some likes (legacy)
         p1.getLikedByUserIds().addAll(Set.of(admin.getId(), bob.getId()));
         p2.getLikedByUserIds().addAll(Set.of(admin.getId()));
         p3.getLikedByUserIds().addAll(Set.of(alice.getId(), admin.getId()));
         p4.getLikedByUserIds().addAll(Set.of(alice.getId(), bob.getId()));
         postRepository.saveAll(List.of(p1, p2, p3, p4));
+
+        // Seed reactions
+        reactionRepository.saveAll(List.of(
+            Reaction.builder().user(alice).post(p4).type(Reaction.ReactionType.FIRE).build(),
+            Reaction.builder().user(bob).post(p4).type(Reaction.ReactionType.CLAP).build(),
+            Reaction.builder().user(admin).post(p1).type(Reaction.ReactionType.HEART).build(),
+            Reaction.builder().user(bob).post(p1).type(Reaction.ReactionType.INSIGHTFUL).build(),
+            Reaction.builder().user(alice).post(p3).type(Reaction.ReactionType.CLAP).build(),
+            Reaction.builder().user(admin).post(p2).type(Reaction.ReactionType.CELEBRATE).build()
+        ));
+
+        // Seed bookmarks
+        bookmarkRepository.saveAll(List.of(
+            Bookmark.builder().user(alice).post(p4).build(),
+            Bookmark.builder().user(alice).post(p3).build(),
+            Bookmark.builder().user(bob).post(p1).build()
+        ));
+
+        // Seed comments
+        Comment c1 = Comment.builder().author(bob).post(p1).content("Excellent breakdown! I'm definitely going to use Spring Boot 3 for my next microservice.").build();
+        Comment c2 = Comment.builder().author(alice).post(p1).content("Glad you found it helpful! Let me know if you run into any issues with the security setup.").parentComment(c1).build();
+        Comment c3 = Comment.builder().author(admin).post(p2).content("The section on React Server Components is spot on. It really changes how we think about state.").build();
+        
+        commentRepository.saveAll(List.of(c1, c2, c3));
 
         log.info("Demo data seeded successfully. Login: alice/alice123, bob/bob123, admin/admin123");
     }

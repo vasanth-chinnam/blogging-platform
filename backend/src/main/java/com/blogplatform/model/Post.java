@@ -65,6 +65,14 @@ public class Post {
     @EqualsAndHashCode.Exclude
     private List<Comment> comments = new ArrayList<>();
 
+    // Reactions (replaces simple likes)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Reaction> reactions = new ArrayList<>();
+
+    // Keep legacy likes for backward compatibility during migration
     @ElementCollection
     @CollectionTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "user_id")
@@ -76,6 +84,13 @@ public class Post {
     private PostStatus status = PostStatus.DRAFT;
 
     private int readTime;
+
+    @Builder.Default
+    private long viewCount = 0;
+
+    // Auto-save content for drafts
+    @Column(columnDefinition = "TEXT")
+    private String autoSavedContent;
 
     @CreatedDate
     @Column(updatable = false)
@@ -92,6 +107,10 @@ public class Post {
 
     public int getCommentsCount() {
         return comments != null ? comments.size() : 0;
+    }
+
+    public int getReactionsCount() {
+        return reactions != null ? reactions.size() : 0;
     }
 
     public enum PostStatus {

@@ -6,4 +6,7 @@ public class UserSummaryDto {
     public String username;
     public String avatarUrl;
     public String bio;
+    public int followersCount;
+    public int followingCount;
+    public boolean followedByCurrentUser;
 }

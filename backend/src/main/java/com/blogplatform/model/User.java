@@ -59,10 +59,43 @@ public class User {
     @EqualsAndHashCode.Exclude
     private List<Comment> comments = new ArrayList<>();
 
+    // Follow system
+    @ManyToMany
+    @JoinTable(
+        name = "user_follows",
+        joinColumns = @JoinColumn(name = "follower_id"),
+        inverseJoinColumns = @JoinColumn(name = "following_id")
+    )
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<User> following = new HashSet<>();
+
+    @ManyToMany(mappedBy = "following")
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<User> followers = new HashSet<>();
+
+    // Interests for personalized feed
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "interest")
+    @Builder.Default
+    private Set<String> interests = new HashSet<>();
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @Builder.Default
     private boolean enabled = true;
+
+    public int getFollowersCount() {
+        return followers != null ? followers.size() : 0;
+    }
+
+    public int getFollowingCount() {
+        return following != null ? following.size() : 0;
+    }
 }
