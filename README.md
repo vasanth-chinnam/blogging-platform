@@ -1,6 +1,6 @@
 # 📖 Inkwell — Full-Stack Blogging Platform
 
-A production-ready blogging platform built with **Spring Boot 3** (backend) and **React + Vite** (frontend), inspired by Medium.
+A premium, production-ready blogging platform built with **Spring Boot 3.4** (backend) and **React + Vite** (frontend), featuring AI-powered writing tools and deep social engagement.
 
 ---
 
@@ -8,216 +8,96 @@ A production-ready blogging platform built with **Spring Boot 3** (backend) and 
 
 ```
 inkwell/
-├── backend/          # Spring Boot 3 REST API
-│   ├── controller/   # REST endpoints
-│   ├── service/      # Business logic
-│   ├── repository/   # JPA data access
-│   ├── model/        # JPA entities
-│   ├── dto/          # Request/response DTOs
-│   ├── security/     # JWT + Spring Security
-│   ├── config/       # App configuration
-│   └── exception/    # Global error handling
+├── backend/          # Spring Boot 3.4 REST API (Java 23)
+│   ├── controller/   # REST endpoints (now with AI & Analytics)
+│   ├── service/      # Business logic (Gemini AI integration)
+│   ├── repository/   # JPA data access (PostgreSQL)
+│   ├── model/        # JPA entities (with Versioning support)
+│   ├── security/     # JWT + Spring Security 6
+│   └── config/       # App config (CORS, Data Seeder, Swagger)
 │
 └── frontend/         # React + Vite SPA
-    └── src/
-        └── App.jsx   # Single-file React app
+    └── src/          # Custom editorial design (no Tailwind)
 ```
 
 ---
 
-## 🔧 Backend — Spring Boot 3
+## 🔧 Backend — Spring Boot 3 & Java 23
 
 ### Tech Stack
 | Concern | Technology |
 |---|---|
-| Framework | Spring Boot 3.2 |
-| Security | Spring Security 6 + JWT (JJWT 0.11) |
-| Persistence | Spring Data JPA + Hibernate |
-| Database (dev) | H2 In-Memory |
-| Database (prod) | MySQL / PostgreSQL |
-| API Docs | Springdoc OpenAPI (Swagger UI) |
-| Validation | Jakarta Bean Validation |
-| Build | Maven |
+| **Runtime** | Java 23 (JDK 23) |
+| **Framework** | Spring Boot 3.4.3 |
+| **AI Engine** | Google Gemini API (via AiService) |
+| **Security** | Spring Security 6 + JWT |
+| **Database** | PostgreSQL (Port 5433) |
+| **API Docs** | Springdoc OpenAPI (Swagger UI) |
+| **Build** | Maven |
 
-### Key Features
-- ✅ JWT authentication & authorization
-- ✅ Role-based access control (USER / ADMIN)
-- ✅ Full CRUD for posts, comments
-- ✅ Like/unlike posts
-- ✅ Tagging and categorization
-- ✅ Slugs for SEO-friendly URLs
-- ✅ Pagination & sorting
-- ✅ Search by title/content
-- ✅ Auto-calculated read time
-- ✅ Draft / Published / Archived post states
-- ✅ Swagger UI at `/swagger-ui.html`
-- ✅ H2 console at `/h2-console`
-- ✅ Demo data seeded on startup
+### 🚀 Advanced Features
+- **🧠 AI Suite**: AI Title suggestions, Summary generation, Tagging, and Writing Improvement ("✨ Improve").
+- **🕒 Version History**: Automatic snapshots of post content with an "Undo/Restore" UI in the editor.
+- **📊 Creator Dashboard**: Real-time analytics showing views, reactions, and follower engagement.
+- **💬 Social Interaction**: Nested comment threads, polymorphic reactions (🔥❤️👏), and author following.
+- **💾 Auto-save**: Background saving of drafts every 30 seconds.
+- **🔖 Reading XP**: Dark Mode, Adjustable Typography, Reading Progress Bar, and "Listen to Article" (Audio).
 
-### API Endpoints
+### API Endpoints (Highlights)
 
-#### Auth
+#### 🧠 AI & Analytics
 ```
-POST /api/auth/register   – Register new user
-POST /api/auth/login      – Login (returns JWT)
+POST /api/ai/suggest-titles     – AI-generated catchy titles
+POST /api/ai/suggest-summary    – Automatic excerpt generation
+POST /api/ai/improve-writing    – Polish grammar and tone
+GET  /api/analytics/dashboard   – Real-time creator metrics
 ```
 
-#### Posts
+#### 🕒 Post History
 ```
-GET    /api/posts                     – List published posts (paginated)
-GET    /api/posts/{id}                – Get post by ID
-GET    /api/posts/slug/{slug}         – Get post by slug
-GET    /api/posts/search?q=...        – Search posts
-GET    /api/posts/tag/{tagSlug}       – Posts by tag
-GET    /api/posts/category/{slug}     – Posts by category
-GET    /api/posts/my                  – Current user's posts (auth)
-POST   /api/posts                     – Create post (auth)
-PUT    /api/posts/{id}                – Update post (auth, owner/admin)
-DELETE /api/posts/{id}                – Delete post (auth, owner/admin)
-POST   /api/posts/{id}/like           – Toggle like (auth)
+GET  /api/posts/{id}/versions   – List all history snapshots
+PUT  /api/posts/{id}/autosave   – Background draft sync
 ```
 
-#### Comments
+#### 📢 Social
 ```
-GET    /api/posts/{id}/comments       – Get comments for post
-POST   /api/posts/{id}/comments       – Add comment (auth)
-PUT    /api/comments/{id}             – Update comment (auth, owner)
-DELETE /api/comments/{id}             – Delete comment (auth, owner/admin)
-```
-
-#### Categories & Tags
-```
-GET /api/categories   – List all categories
-GET /api/tags         – List all tags
+POST /api/posts/{id}/react      – React with 🔥, ❤️, or 👏
+POST /api/users/{id}/follow     – Follow your favorite authors
+GET  /api/bookmarks             – Your saved reading list
 ```
 
 ### Running the Backend
 
+1. **Requirements**: PostgreSQL running on `localhost:5433` (DB: `blogdb`).
+2. **Environment**: Ensure `GOOGLE_AI_API_KEY` is set in your environment or `application.properties`.
+3. **Execution**:
 ```bash
 cd backend
-./mvnw spring-boot:run
+./mvnw clean package -DskipTests
+java -jar target/blogging-platform-1.0.0.jar
 ```
 
-Server starts at **http://localhost:8080**
-
-**Demo Credentials:**
-| User | Password | Role |
-|---|---|---|
-| alice | alice123 | USER |
-| bob | bob123 | USER |
-| admin | admin123 | ADMIN |
-
-**Development URLs:**
-- Swagger UI: http://localhost:8080/swagger-ui.html
-- H2 Console: http://localhost:8080/h2-console
-  - JDBC URL: `jdbc:h2:mem:blogdb`
-  - Username: `sa` / Password: `password`
+Server starts at **http://localhost:8080** (Redirects automatically to Swagger UI).
 
 ---
 
 ## ⚛️ Frontend — React + Vite
 
 ### Tech Stack
-- React 18 (hooks-based, no class components)
-- Vite 5 (dev server, bundler)
-- Custom CSS (no Tailwind — hand-crafted editorial design)
-- Google Fonts: Playfair Display + DM Sans
-
-### Features
-- 🏠 Home page with featured post hero + card grid
-- 🔍 Live search
-- 📂 Category filtering
-- 📄 Full article view with Markdown rendering
-- 💬 Comments (add/view)
-- ❤️ Like/unlike posts
-- ✍️ Rich post editor with Markdown support + preview
-- 👤 My Stories dashboard
-- 🔐 Auth modal (login + register)
-- 📱 Responsive design
+- **React 18** (Functional components + Hooks)
+- **Vite 5** (Ultra-fast HMR)
+- **Custom CSS** (Premium editorial design, HSL color tokens)
+- **Routing**: History API based SPA routing (Pure JS)
 
 ### Running the Frontend
-
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Frontend runs at **http://localhost:3000**  
-API calls proxy to **http://localhost:8080**
+Frontend runs at **http://localhost:3000** (Proxied to Backend).
 
 ---
 
-## 🚀 Production Setup
-
-### Switch to MySQL
-
-1. In `pom.xml`, swap H2 for MySQL connector
-2. Update `application.properties`:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/inkwell
-spring.datasource.username=root
-spring.datasource.password=yourpassword
-spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
-spring.jpa.hibernate.ddl-auto=update
-```
-
-### Build for Production
-
-```bash
-# Backend JAR
-cd backend && ./mvnw clean package
-
-# Frontend bundle
-cd frontend && npm run build
-# Serve /dist with nginx or embed in Spring Boot
-```
-
----
-
-## 📐 Layered Architecture
-
-```
-HTTP Request
-    ↓
-Controller Layer     — Handles HTTP, validates input, delegates to service
-    ↓
-Service Layer        — Business logic, orchestration, transaction management
-    ↓
-Repository Layer     — JPA queries, database abstraction
-    ↓
-Database (H2/MySQL)
-```
-
----
-
-## 🔒 Security Architecture
-
-```
-Request → JwtAuthenticationFilter
-             ↓ (if Bearer token present)
-         JwtTokenProvider.validateToken()
-             ↓
-         CustomUserDetailsService.loadUserByUsername()
-             ↓
-         SecurityContextHolder.setAuthentication()
-             ↓
-         Controller (with @PreAuthorize if needed)
-```
-
----
-
-## 🧩 Entity Relationships
-
-```
-User ──< Post ──< Comment
-           │
-           ├──< Tag (many-to-many)
-           │
-           └──> Category (many-to-one)
-```
-
----
-
-*Built with ❤️ — Spring Boot + React*
+*Refined with ❤️ — A State-of-the-Art Blogging Experience*
