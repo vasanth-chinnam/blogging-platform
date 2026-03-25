@@ -15,9 +15,6 @@ import java.util.stream.Collectors;
 public class AnalyticsService {
 
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
-    private final ReactionRepository reactionRepository;
-    private final CommentRepository commentRepository;
 
     public AnalyticsDto getDashboard(String username) {
         User user = userRepository.findByUsername(username)

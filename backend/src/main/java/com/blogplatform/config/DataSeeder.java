@@ -26,6 +26,7 @@ public class DataSeeder implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @SuppressWarnings("null")
     public void run(String... args) {
         if (userRepository.count() > 0) return;
         log.info("Seeding demo data...");
@@ -33,7 +34,7 @@ public class DataSeeder implements CommandLineRunner {
         // Categories
         Category tech = categoryRepository.save(Category.builder().name("Technology").slug("technology").description("Tech articles").color("#3B82F6").build());
         Category design = categoryRepository.save(Category.builder().name("Design").slug("design").description("Design articles").color("#8B5CF6").build());
-        Category career = categoryRepository.save(Category.builder().name("Career").slug("career").description("Career advice").color("#10B981").build());
+        categoryRepository.save(Category.builder().name("Career").slug("career").description("Career advice").color("#10B981").build());
 
         // Tags
         Tag java = tagRepository.save(Tag.builder().name("Java").slug("java").build());

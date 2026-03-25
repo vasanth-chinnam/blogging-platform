@@ -1,6 +1,5 @@
 package com.blogplatform.service;
 
-import com.blogplatform.dto.AiSuggestionDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

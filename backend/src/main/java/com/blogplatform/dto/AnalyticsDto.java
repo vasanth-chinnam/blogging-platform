@@ -1,7 +1,6 @@
 package com.blogplatform.dto;
 import lombok.*;
 import java.util.List;
-import java.util.Map;
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class AnalyticsDto {
     public long totalViews;

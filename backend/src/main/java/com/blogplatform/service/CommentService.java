@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class CommentService {
 
     private final CommentRepository commentRepository;

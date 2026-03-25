@@ -16,6 +16,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
