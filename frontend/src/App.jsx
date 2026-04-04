@@ -287,9 +287,27 @@ async function apiFetch(path, options = {}) {
   const token = getToken();
   const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
   if (token) headers["Authorization"] = `Bearer ${token}`;
+  
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Request failed");
+  
+  // Handle expired tokens automatically
+  if (res.status === 401 || res.status === 403) {
+    localStorage.removeItem("blog_token");
+    window.location.href = "/";
+    throw new Error("Session expired. Please log in again.");
+  }
+  
+  // Safely parse JSON to prevent crashes on empty responses
+  let data;
+  try {
+    const text = await res.text();
+    data = text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (!res.ok) throw new Error(`Error ${res.status}: Failed to reach server.`);
+    return null;
+  }
+  
+  if (!res.ok) throw new Error(data.message || `Request failed with status ${res.status}`);
   return data;
 }
 
